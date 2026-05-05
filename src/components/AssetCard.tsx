@@ -59,6 +59,7 @@ export function AssetCard({
   const isAudio = asset.file_type.startsWith("audio/");
   const isVideo = asset.file_type.startsWith("video/");
   const [busy, setBusy] = useState(false);
+  const [previewOpen, setPreviewOpen] = useState(false);
 
   const handleDownload = async () => {
     try {
