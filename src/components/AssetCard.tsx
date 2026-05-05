@@ -1,7 +1,8 @@
-import { Download, FileImage, FileAudio, FileVideo, FileCode, MoreHorizontal, Check, FolderInput } from "lucide-react";
+import { Download, FileImage, FileAudio, FileVideo, FileCode, MoreHorizontal, Check, FolderInput, Eye, X } from "lucide-react";
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -58,6 +59,7 @@ export function AssetCard({
   const isAudio = asset.file_type.startsWith("audio/");
   const isVideo = asset.file_type.startsWith("video/");
   const [busy, setBusy] = useState(false);
+  const [previewOpen, setPreviewOpen] = useState(false);
 
   const handleDownload = async () => {
     try {
@@ -111,42 +113,95 @@ export function AssetCard({
           {kind.label}
         </span>
 
-        <DropdownMenu>
-          <DropdownMenuTrigger
-            disabled={busy}
-            className="absolute top-3 right-3 w-8 h-8 rounded-full glass-strong flex items-center justify-center hover:bg-aurora hover:text-primary-foreground transition disabled:opacity-50"
-            aria-label="Asset options"
+        <div className="absolute top-3 right-3 flex gap-2">
+          <button
+            onClick={() => setPreviewOpen(true)}
+            className="w-8 h-8 rounded-full glass-strong flex items-center justify-center hover:bg-aurora hover:text-primary-foreground transition"
+            aria-label="Preview asset"
           >
-            <MoreHorizontal className="w-4 h-4" />
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="glass-strong border-glass-border min-w-56">
-            <DropdownMenuLabel className="flex items-center gap-2">
-              <FolderInput className="w-4 h-4" /> Move to project
-            </DropdownMenuLabel>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={() => moveTo(null)} className="cursor-pointer">
-              <span className="flex-1">No project</span>
-              {asset.project_id === null && <Check className="w-4 h-4" />}
-            </DropdownMenuItem>
-            {projects.length > 0 && <DropdownMenuSeparator />}
-            {projects.map((p) => (
-              <DropdownMenuItem
-                key={p.id}
-                onClick={() => moveTo(p.id)}
-                className="cursor-pointer"
-              >
-                <span className="flex-1 truncate">{p.name}</span>
-                {asset.project_id === p.id && <Check className="w-4 h-4" />}
+            <Eye className="w-4 h-4" />
+          </button>
+          <DropdownMenu>
+            <DropdownMenuTrigger
+              disabled={busy}
+              className="w-8 h-8 rounded-full glass-strong flex items-center justify-center hover:bg-aurora hover:text-primary-foreground transition disabled:opacity-50"
+              aria-label="Asset options"
+            >
+              <MoreHorizontal className="w-4 h-4" />
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="glass-strong border-glass-border min-w-56">
+              <DropdownMenuLabel className="flex items-center gap-2">
+                <FolderInput className="w-4 h-4" /> Move to project
+              </DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={() => moveTo(null)} className="cursor-pointer">
+                <span className="flex-1">No project</span>
+                {asset.project_id === null && <Check className="w-4 h-4" />}
               </DropdownMenuItem>
-            ))}
-            {projects.length === 0 && (
-              <DropdownMenuItem disabled className="text-xs text-muted-foreground">
-                No projects yet — create one in the Upload tab
-              </DropdownMenuItem>
-            )}
-          </DropdownMenuContent>
-        </DropdownMenu>
+              {projects.length > 0 && <DropdownMenuSeparator />}
+              {projects.map((p) => (
+                <DropdownMenuItem
+                  key={p.id}
+                  onClick={() => moveTo(p.id)}
+                  className="cursor-pointer"
+                >
+                  <span className="flex-1 truncate">{p.name}</span>
+                  {asset.project_id === p.id && <Check className="w-4 h-4" />}
+                </DropdownMenuItem>
+              ))}
+              {projects.length === 0 && (
+                <DropdownMenuItem disabled className="text-xs text-muted-foreground">
+                  No projects yet — create one in the Upload tab
+                </DropdownMenuItem>
+              )}
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
       </div>
+
+      <Dialog open={previewOpen} onOpenChange={setPreviewOpen}>
+        <DialogContent className="glass-strong border-glass-border max-w-4xl p-0 overflow-hidden [&>button]:hidden">
+          <DialogTitle className="sr-only">{asset.name}</DialogTitle>
+          <div className="flex items-center justify-between px-5 py-3 border-b border-glass-border">
+            <div className="min-w-0">
+              <p className="font-medium truncate">{asset.name}</p>
+              <p className="text-xs text-muted-foreground">{kind.label} · {formatSize(asset.size)}</p>
+            </div>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={handleDownload}
+                className="flex items-center gap-2 rounded-xl glass-strong hover:bg-aurora hover:text-primary-foreground transition px-3 py-1.5 text-sm"
+              >
+                <Download className="w-4 h-4" /> Download
+              </button>
+              <button
+                onClick={() => setPreviewOpen(false)}
+                className="w-8 h-8 rounded-full glass-strong flex items-center justify-center hover:bg-aurora hover:text-primary-foreground transition"
+                aria-label="Close preview"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+          </div>
+          <div className="bg-black/40 flex items-center justify-center min-h-[50vh] max-h-[75vh] p-4">
+            {isImage ? (
+              <img src={asset.file_url} alt={asset.name} className="max-w-full max-h-[70vh] object-contain" />
+            ) : isVideo ? (
+              <video src={asset.file_url} controls autoPlay className="max-w-full max-h-[70vh]" />
+            ) : isAudio ? (
+              <div className="flex flex-col items-center gap-6 w-full max-w-md">
+                <Icon className="w-20 h-20 text-primary" />
+                <audio controls autoPlay src={asset.file_url} className="w-full" />
+              </div>
+            ) : (
+              <div className="flex flex-col items-center gap-3 text-muted-foreground">
+                <Icon className="w-16 h-16" />
+                <p className="text-sm">No preview available</p>
+              </div>
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
       <div className="p-4">
         <h3 className="font-medium truncate">{asset.name}</h3>
         <p className="text-xs text-muted-foreground mt-1">{formatSize(asset.size)}</p>
