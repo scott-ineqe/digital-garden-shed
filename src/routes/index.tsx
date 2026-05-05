@@ -144,7 +144,7 @@ function Index() {
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
                 {filtered.map((a) => (
-                  <AssetCard key={a.id} asset={a} />
+                  <AssetCard key={a.id} asset={a} projects={projects} onChanged={load} />
                 ))}
               </div>
             )}
