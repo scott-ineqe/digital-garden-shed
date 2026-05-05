@@ -1,7 +1,8 @@
-import { Download, FileImage, FileAudio, FileVideo, FileCode, MoreHorizontal, Check, FolderInput } from "lucide-react";
+import { Download, FileImage, FileAudio, FileVideo, FileCode, MoreHorizontal, Check, FolderInput, Eye, X } from "lucide-react";
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import {
   DropdownMenu,
   DropdownMenuContent,
