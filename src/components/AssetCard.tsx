@@ -1,4 +1,15 @@
-import { Download, FileImage, FileAudio, FileVideo, FileCode } from "lucide-react";
+import { Download, FileImage, FileAudio, FileVideo, FileCode, MoreHorizontal, Check, FolderInput } from "lucide-react";
+import { useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 export type Asset = {
   id: string;
@@ -9,6 +20,8 @@ export type Asset = {
   project_id: string | null;
   created_at: string;
 };
+
+export type ProjectOption = { id: string; name: string };
 
 function formatSize(bytes: number) {
   if (!bytes) return "—";
@@ -30,12 +43,21 @@ function getKind(type: string) {
   return { label: "File", icon: FileImage };
 }
 
-export function AssetCard({ asset }: { asset: Asset }) {
+export function AssetCard({
+  asset,
+  projects,
+  onChanged,
+}: {
+  asset: Asset;
+  projects: ProjectOption[];
+  onChanged?: () => void;
+}) {
   const kind = getKind(asset.file_type);
   const Icon = kind.icon;
   const isImage = asset.file_type.startsWith("image/");
   const isAudio = asset.file_type.startsWith("audio/");
   const isVideo = asset.file_type.startsWith("video/");
+  const [busy, setBusy] = useState(false);
 
   const handleDownload = async () => {
     try {
@@ -52,6 +74,22 @@ export function AssetCard({ asset }: { asset: Asset }) {
     } catch {
       window.open(asset.file_url, "_blank");
     }
+  };
+
+  const moveTo = async (projectId: string | null) => {
+    if (projectId === asset.project_id) return;
+    setBusy(true);
+    const { error } = await supabase
+      .from("assets")
+      .update({ project_id: projectId })
+      .eq("id", asset.id);
+    setBusy(false);
+    if (error) {
+      toast.error(error.message);
+      return;
+    }
+    toast.success(projectId ? "Moved to project" : "Removed from project");
+    onChanged?.();
   };
 
   return (
@@ -72,6 +110,42 @@ export function AssetCard({ asset }: { asset: Asset }) {
         <span className="absolute top-3 left-3 text-xs font-medium px-2 py-1 rounded-full glass-strong">
           {kind.label}
         </span>
+
+        <DropdownMenu>
+          <DropdownMenuTrigger
+            disabled={busy}
+            className="absolute top-3 right-3 w-8 h-8 rounded-full glass-strong flex items-center justify-center hover:bg-aurora hover:text-primary-foreground transition disabled:opacity-50"
+            aria-label="Asset options"
+          >
+            <MoreHorizontal className="w-4 h-4" />
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="glass-strong border-glass-border min-w-56">
+            <DropdownMenuLabel className="flex items-center gap-2">
+              <FolderInput className="w-4 h-4" /> Move to project
+            </DropdownMenuLabel>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem onClick={() => moveTo(null)} className="cursor-pointer">
+              <span className="flex-1">No project</span>
+              {asset.project_id === null && <Check className="w-4 h-4" />}
+            </DropdownMenuItem>
+            {projects.length > 0 && <DropdownMenuSeparator />}
+            {projects.map((p) => (
+              <DropdownMenuItem
+                key={p.id}
+                onClick={() => moveTo(p.id)}
+                className="cursor-pointer"
+              >
+                <span className="flex-1 truncate">{p.name}</span>
+                {asset.project_id === p.id && <Check className="w-4 h-4" />}
+              </DropdownMenuItem>
+            ))}
+            {projects.length === 0 && (
+              <DropdownMenuItem disabled className="text-xs text-muted-foreground">
+                No projects yet — create one in the Upload tab
+              </DropdownMenuItem>
+            )}
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
       <div className="p-4">
         <h3 className="font-medium truncate">{asset.name}</h3>
