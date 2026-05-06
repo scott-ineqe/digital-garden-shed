@@ -3,7 +3,7 @@ import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { AssetCard, type Asset } from "@/components/AssetCard";
 import { UploadPanel } from "@/components/UploadPanel";
-import { Sparkles, LayoutGrid, UploadCloud, Search, Folder } from "lucide-react";
+import { Sparkles, LayoutGrid, UploadCloud, Search, Folder, FileType, ArrowUpDown } from "lucide-react";
 import { Toaster } from "@/components/ui/sonner";
 
 export const Route = createFileRoute("/")({
