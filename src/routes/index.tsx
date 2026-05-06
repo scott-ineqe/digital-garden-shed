@@ -147,6 +147,35 @@ function Index() {
                   ))}
                 </select>
               </div>
+              <div className="relative">
+                <FileType className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
+                <select
+                  value={typeFilter}
+                  onChange={(e) => setTypeFilter(e.target.value)}
+                  className="glass rounded-xl pl-11 pr-8 py-3 text-sm outline-none focus:ring-2 focus:ring-ring appearance-none min-w-[160px]"
+                >
+                  <option value="all">All types</option>
+                  <option value="image">Images</option>
+                  <option value="svg">SVG</option>
+                  <option value="png">PNG</option>
+                  <option value="jpg">JPG</option>
+                  <option value="audio">Audio (MP3)</option>
+                  <option value="video">Video (MOV)</option>
+                </select>
+              </div>
+              <div className="relative">
+                <ArrowUpDown className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
+                <select
+                  value={sortBy}
+                  onChange={(e) => setSortBy(e.target.value as typeof sortBy)}
+                  className="glass rounded-xl pl-11 pr-8 py-3 text-sm outline-none focus:ring-2 focus:ring-ring appearance-none min-w-[180px]"
+                >
+                  <option value="newest">Newest first</option>
+                  <option value="oldest">Oldest first</option>
+                  <option value="az">Name A → Z</option>
+                  <option value="za">Name Z → A</option>
+                </select>
+              </div>
             </div>
 
             {loading ? (
