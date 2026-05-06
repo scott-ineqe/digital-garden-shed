@@ -1,8 +1,18 @@
-import { Download, FileImage, FileAudio, FileVideo, FileCode, MoreHorizontal, Check, FolderInput, Eye, X } from "lucide-react";
+import { Download, FileImage, FileAudio, FileVideo, FileCode, MoreHorizontal, Check, FolderInput, Eye, X, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import {
   DropdownMenu,
   DropdownMenuContent,
