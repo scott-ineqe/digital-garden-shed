@@ -44,17 +44,36 @@ function Index() {
   }, []);
 
   const filtered = useMemo(() => {
-    return assets.filter((a) => {
-      if (projectFilter === "all") {
-      } else if (projectFilter === "none") {
+    const typeMap: Record<string, string[]> = {
+      image: ["image/svg+xml", "image/png", "image/jpeg", "image/jpg"],
+      svg: ["image/svg+xml"],
+      png: ["image/png"],
+      jpg: ["image/jpeg", "image/jpg"],
+      audio: ["audio/mpeg", "audio/mp3"],
+      video: ["video/quicktime", "video/mov"],
+    };
+    const list = assets.filter((a) => {
+      if (projectFilter === "none") {
         if (a.project_id) return false;
-      } else if (a.project_id !== projectFilter) {
+      } else if (projectFilter !== "all" && a.project_id !== projectFilter) {
         return false;
+      }
+      if (typeFilter !== "all") {
+        const allowed = typeMap[typeFilter] ?? [];
+        if (!allowed.some((t) => a.file_type.toLowerCase().includes(t.split("/")[1]))) return false;
       }
       if (search && !a.name.toLowerCase().includes(search.toLowerCase())) return false;
       return true;
     });
-  }, [assets, projectFilter, search]);
+    const sorted = [...list].sort((a, b) => {
+      if (sortBy === "az") return a.name.localeCompare(b.name);
+      if (sortBy === "za") return b.name.localeCompare(a.name);
+      const ta = new Date(a.created_at).getTime();
+      const tb = new Date(b.created_at).getTime();
+      return sortBy === "newest" ? tb - ta : ta - tb;
+    });
+    return sorted;
+  }, [assets, projectFilter, typeFilter, sortBy, search]);
 
   return (
     <div className="min-h-screen">
