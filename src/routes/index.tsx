@@ -24,6 +24,8 @@ function Index() {
   const [projects, setProjects] = useState<Project[]>([]);
   const [search, setSearch] = useState("");
   const [projectFilter, setProjectFilter] = useState<string>("all");
+  const [typeFilter, setTypeFilter] = useState<string>("all");
+  const [sortBy, setSortBy] = useState<"newest" | "oldest" | "az" | "za">("newest");
   const [loading, setLoading] = useState(true);
 
   const load = async () => {
