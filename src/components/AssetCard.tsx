@@ -233,14 +233,44 @@ export function AssetCard({
       <div className="p-4">
         <h3 className="font-medium truncate">{asset.name}</h3>
         <p className="text-xs text-muted-foreground mt-1">{formatSize(asset.size)}</p>
-        <button
-          onClick={handleDownload}
-          className="mt-3 w-full flex items-center justify-center gap-2 rounded-xl glass-strong hover:bg-aurora hover:text-primary-foreground transition-all py-2 text-sm font-medium"
-        >
-          <Download className="w-4 h-4" />
-          Download
-        </button>
+        <div className="mt-3 flex gap-2">
+          <button
+            onClick={handleDownload}
+            className="flex-1 flex items-center justify-center gap-2 rounded-xl glass-strong hover:bg-aurora hover:text-primary-foreground transition-all py-2 text-sm font-medium"
+          >
+            <Download className="w-4 h-4" />
+            Download
+          </button>
+          <button
+            onClick={() => setConfirmOpen(true)}
+            disabled={busy}
+            aria-label="Delete asset"
+            className="flex items-center justify-center rounded-xl glass-strong hover:bg-destructive hover:text-destructive-foreground transition-all px-3 py-2 text-sm font-medium disabled:opacity-50"
+          >
+            <Trash2 className="w-4 h-4" />
+          </button>
+        </div>
       </div>
+      <AlertDialog open={confirmOpen} onOpenChange={setConfirmOpen}>
+        <AlertDialogContent className="glass-strong border-glass-border">
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete this asset?</AlertDialogTitle>
+            <AlertDialogDescription>
+              "{asset.name}" will be permanently removed. This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={busy}>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={(e) => { e.preventDefault(); handleDelete(); }}
+              disabled={busy}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {busy ? "Deleting…" : "Delete"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
