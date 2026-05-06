@@ -71,6 +71,23 @@ export function AssetCard({
   const isVideo = asset.file_type.startsWith("video/");
   const [busy, setBusy] = useState(false);
   const [previewOpen, setPreviewOpen] = useState(false);
+  const [confirmOpen, setConfirmOpen] = useState(false);
+
+  const handleDelete = async () => {
+    setBusy(true);
+    if (asset.storage_path) {
+      await supabase.storage.from("assets").remove([asset.storage_path]);
+    }
+    const { error } = await supabase.from("assets").delete().eq("id", asset.id);
+    setBusy(false);
+    setConfirmOpen(false);
+    if (error) {
+      toast.error(error.message);
+      return;
+    }
+    toast.success("Asset deleted");
+    onChanged?.();
+  };
 
   const handleDownload = async () => {
     try {
