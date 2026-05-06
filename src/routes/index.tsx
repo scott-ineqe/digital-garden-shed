@@ -3,7 +3,7 @@ import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { AssetCard, type Asset } from "@/components/AssetCard";
 import { UploadPanel } from "@/components/UploadPanel";
-import { Sparkles, LayoutGrid, UploadCloud, Search, Folder } from "lucide-react";
+import { Sparkles, LayoutGrid, UploadCloud, Search, Folder, FileType, ArrowUpDown } from "lucide-react";
 import { Toaster } from "@/components/ui/sonner";
 
 export const Route = createFileRoute("/")({
@@ -24,6 +24,8 @@ function Index() {
   const [projects, setProjects] = useState<Project[]>([]);
   const [search, setSearch] = useState("");
   const [projectFilter, setProjectFilter] = useState<string>("all");
+  const [typeFilter, setTypeFilter] = useState<string>("all");
+  const [sortBy, setSortBy] = useState<"newest" | "oldest" | "az" | "za">("newest");
   const [loading, setLoading] = useState(true);
 
   const load = async () => {
@@ -42,17 +44,36 @@ function Index() {
   }, []);
 
   const filtered = useMemo(() => {
-    return assets.filter((a) => {
-      if (projectFilter === "all") {
-      } else if (projectFilter === "none") {
+    const typeMap: Record<string, string[]> = {
+      image: ["image/svg+xml", "image/png", "image/jpeg", "image/jpg"],
+      svg: ["image/svg+xml"],
+      png: ["image/png"],
+      jpg: ["image/jpeg", "image/jpg"],
+      audio: ["audio/mpeg", "audio/mp3"],
+      video: ["video/quicktime", "video/mov"],
+    };
+    const list = assets.filter((a) => {
+      if (projectFilter === "none") {
         if (a.project_id) return false;
-      } else if (a.project_id !== projectFilter) {
+      } else if (projectFilter !== "all" && a.project_id !== projectFilter) {
         return false;
+      }
+      if (typeFilter !== "all") {
+        const allowed = typeMap[typeFilter] ?? [];
+        if (!allowed.some((t) => a.file_type.toLowerCase().includes(t.split("/")[1]))) return false;
       }
       if (search && !a.name.toLowerCase().includes(search.toLowerCase())) return false;
       return true;
     });
-  }, [assets, projectFilter, search]);
+    const sorted = [...list].sort((a, b) => {
+      if (sortBy === "az") return a.name.localeCompare(b.name);
+      if (sortBy === "za") return b.name.localeCompare(a.name);
+      const ta = new Date(a.created_at).getTime();
+      const tb = new Date(b.created_at).getTime();
+      return sortBy === "newest" ? tb - ta : ta - tb;
+    });
+    return sorted;
+  }, [assets, projectFilter, typeFilter, sortBy, search]);
 
   return (
     <div className="min-h-screen">
@@ -124,6 +145,35 @@ function Index() {
                       {p.name}
                     </option>
                   ))}
+                </select>
+              </div>
+              <div className="relative">
+                <FileType className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
+                <select
+                  value={typeFilter}
+                  onChange={(e) => setTypeFilter(e.target.value)}
+                  className="glass rounded-xl pl-11 pr-8 py-3 text-sm outline-none focus:ring-2 focus:ring-ring appearance-none min-w-[160px]"
+                >
+                  <option value="all">All types</option>
+                  <option value="image">Images</option>
+                  <option value="svg">SVG</option>
+                  <option value="png">PNG</option>
+                  <option value="jpg">JPG</option>
+                  <option value="audio">Audio (MP3)</option>
+                  <option value="video">Video (MOV)</option>
+                </select>
+              </div>
+              <div className="relative">
+                <ArrowUpDown className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
+                <select
+                  value={sortBy}
+                  onChange={(e) => setSortBy(e.target.value as typeof sortBy)}
+                  className="glass rounded-xl pl-11 pr-8 py-3 text-sm outline-none focus:ring-2 focus:ring-ring appearance-none min-w-[180px]"
+                >
+                  <option value="newest">Newest first</option>
+                  <option value="oldest">Oldest first</option>
+                  <option value="az">Name A → Z</option>
+                  <option value="za">Name Z → A</option>
                 </select>
               </div>
             </div>
