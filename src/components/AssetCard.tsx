@@ -1,8 +1,18 @@
-import { Download, FileImage, FileAudio, FileVideo, FileCode, MoreHorizontal, Check, FolderInput, Eye, X } from "lucide-react";
+import { Download, FileImage, FileAudio, FileVideo, FileCode, MoreHorizontal, Check, FolderInput, Eye, X, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -20,6 +30,7 @@ export type Asset = {
   size: number;
   project_id: string | null;
   created_at: string;
+  storage_path?: string;
 };
 
 export type ProjectOption = { id: string; name: string };
@@ -60,6 +71,23 @@ export function AssetCard({
   const isVideo = asset.file_type.startsWith("video/");
   const [busy, setBusy] = useState(false);
   const [previewOpen, setPreviewOpen] = useState(false);
+  const [confirmOpen, setConfirmOpen] = useState(false);
+
+  const handleDelete = async () => {
+    setBusy(true);
+    if (asset.storage_path) {
+      await supabase.storage.from("assets").remove([asset.storage_path]);
+    }
+    const { error } = await supabase.from("assets").delete().eq("id", asset.id);
+    setBusy(false);
+    setConfirmOpen(false);
+    if (error) {
+      toast.error(error.message);
+      return;
+    }
+    toast.success("Asset deleted");
+    onChanged?.();
+  };
 
   const handleDownload = async () => {
     try {
@@ -205,14 +233,44 @@ export function AssetCard({
       <div className="p-4">
         <h3 className="font-medium truncate">{asset.name}</h3>
         <p className="text-xs text-muted-foreground mt-1">{formatSize(asset.size)}</p>
-        <button
-          onClick={handleDownload}
-          className="mt-3 w-full flex items-center justify-center gap-2 rounded-xl glass-strong hover:bg-aurora hover:text-primary-foreground transition-all py-2 text-sm font-medium"
-        >
-          <Download className="w-4 h-4" />
-          Download
-        </button>
+        <div className="mt-3 flex gap-2">
+          <button
+            onClick={handleDownload}
+            className="flex-1 flex items-center justify-center gap-2 rounded-xl glass-strong hover:bg-aurora hover:text-primary-foreground transition-all py-2 text-sm font-medium"
+          >
+            <Download className="w-4 h-4" />
+            Download
+          </button>
+          <button
+            onClick={() => setConfirmOpen(true)}
+            disabled={busy}
+            aria-label="Delete asset"
+            className="flex items-center justify-center rounded-xl glass-strong hover:bg-destructive hover:text-destructive-foreground transition-all px-3 py-2 text-sm font-medium disabled:opacity-50"
+          >
+            <Trash2 className="w-4 h-4" />
+          </button>
+        </div>
       </div>
+      <AlertDialog open={confirmOpen} onOpenChange={setConfirmOpen}>
+        <AlertDialogContent className="glass-strong border-glass-border">
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete this asset?</AlertDialogTitle>
+            <AlertDialogDescription>
+              "{asset.name}" will be permanently removed. This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={busy}>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={(e) => { e.preventDefault(); handleDelete(); }}
+              disabled={busy}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {busy ? "Deleting…" : "Delete"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
