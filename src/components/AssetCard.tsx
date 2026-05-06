@@ -30,6 +30,7 @@ export type Asset = {
   size: number;
   project_id: string | null;
   created_at: string;
+  storage_path?: string;
 };
 
 export type ProjectOption = { id: string; name: string };
