@@ -1,5 +1,5 @@
 import { Outlet, Link, createRootRoute, HeadContent, Scripts } from "@tanstack/react-router";
-
+import { Library, Palette } from "lucide-react";
 import appCss from "../styles.css?url";
 
 function NotFoundComponent() {
@@ -32,15 +32,6 @@ export const Route = createRootRoute({
       { title: "Lovable App" },
       { name: "description", content: "Asset Haven is a digital asset management application for storing, organizing, and sharing creative assets." },
       { name: "author", content: "Lovable" },
-      { property: "og:title", content: "Lovable App" },
-      { property: "og:description", content: "Asset Haven is a digital asset management application for storing, organizing, and sharing creative assets." },
-      { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary" },
-      { name: "twitter:site", content: "@Lovable" },
-      { name: "twitter:title", content: "Lovable App" },
-      { name: "twitter:description", content: "Asset Haven is a digital asset management application for storing, organizing, and sharing creative assets." },
-      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/cd7404ff-bd4a-48c6-beee-89b288059545/id-preview-5f0d1570--c93085da-2784-4e1d-9594-0d97cd98265a.lovable.app-1778059143137.png" },
-      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/cd7404ff-bd4a-48c6-beee-89b288059545/id-preview-5f0d1570--c93085da-2784-4e1d-9594-0d97cd98265a.lovable.app-1778059143137.png" },
     ],
     links: [
       {
@@ -69,5 +60,27 @@ function RootShell({ children }: { children: React.ReactNode }) {
 }
 
 function RootComponent() {
-  return <Outlet />;
+  return (
+    <>
+      <nav className="glass border-b border-glass-border sticky top-0 z-50">
+        <div className="max-w-6xl mx-auto px-6 h-16 flex items-center gap-6">
+          <Link
+            to="/"
+            className="flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors [&.active]:text-primary [&.active]:font-semibold"
+          >
+            <Library className="w-4 h-4" />
+            Assets
+          </Link>
+          <Link
+            to="/colors"
+            className="flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors [&.active]:text-primary [&.active]:font-semibold"
+          >
+            <Palette className="w-4 h-4" />
+            Colors
+          </Link>
+        </div>
+      </nav>
+      <Outlet />
+    </>
+  );
 }
