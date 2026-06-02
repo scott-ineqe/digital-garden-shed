@@ -71,26 +71,24 @@ function RootShell({ children }: { children: React.ReactNode }) {
 function RootComponent() {
   return (
     <>
-      {/* Changed from 'glass' to 'bg-background' so it is completely solid */}
-      <nav className="bg-background border-b border-border sticky top-0 z-50">
-        <div className="max-w-6xl mx-auto px-6 h-16 flex items-center gap-6">
+      <nav className="sticky top-0 z-50 w-full border-b border-white/10 bg-background/90 backdrop-blur-2xl supports-[backdrop-filter]:bg-background/60">
+        <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-center sm:justify-start gap-4">
           <Link
             to="/"
-            className="flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors [&.active]:text-primary [&.active]:font-semibold"
+            className="flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-white/5 transition-all duration-200 [&.active]:text-primary [&.active]:bg-primary/10 [&.active]:shadow-[inset_0_1px_1px_rgba(255,255,255,0.1)]"
           >
             <Library className="w-4 h-4" />
-            Assets
+            Assets Library
           </Link>
           <Link
             to="/colors"
-            className="flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors [&.active]:text-primary [&.active]:font-semibold"
+            className="flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-white/5 transition-all duration-200 [&.active]:text-primary [&.active]:bg-primary/10 [&.active]:shadow-[inset_0_1px_1px_rgba(255,255,255,0.1)]"
           >
             <Palette className="w-4 h-4" />
-            Colors
+            Brand Colors
           </Link>
         </div>
       </nav>
-      {/* This renders the actual page content (index.tsx or colors.tsx) beneath the nav */}
       <Outlet />
     </>
   );
