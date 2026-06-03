@@ -57,29 +57,3 @@ function RootShell({ children }: { children: React.ReactNode }) {
     </html>
   );
 }
-
-function RootComponent() {
-  return (
-    <>
-      <nav className="sticky top-0 z-50 w-full border-b border-white/10 bg-background/90 backdrop-blur-2xl supports-[backdrop-filter]:bg-background/60">
-        <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-center sm:justify-start gap-4">
-          <Link
-            to="/"
-            className="flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-medium transition-all duration-200 border border-white text-white hover:bg-white/10 hover:-translate-y-0.5 active:translate-y-0 [&.active]:bg-white [&.active]:text-[#0d1b30] [&.active]:hover:bg-white/90"
-          >
-            <Library className="w-4 h-4" />
-            Assets Library
-          </Link>
-          <Link
-            to="/colors"
-            className="flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-medium transition-all duration-200 border border-white text-white hover:bg-white/10 hover:-translate-y-0.5 active:translate-y-0 [&.active]:bg-white [&.active]:text-[#0d1b30] [&.active]:hover:bg-white/90"
-          >
-            <Palette className="w-4 h-4" />
-            Brand Colors
-          </Link>
-        </div>
-      </nav>
-      <Outlet />
-    </>
-  );
-}
