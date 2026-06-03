@@ -30,12 +30,11 @@ function Index() {
 
   const load = async () => {
     setLoading(true);
-    const [a, p] = await Promise.all([
-      supabase.from("assets").select("*").order("created_at", { ascending: false }),
-      supabase.from("projects").select("*").order("created_at", { ascending: false }),
+    // Fake local data instead of Supabase
+    setAssets([]); 
+    setProjects([
+      { id: "1", name: "My Local Project", description: "Running without Supabase!" }
     ]);
-    setAssets((a.data ?? []) as Asset[]);
-    setProjects(p.data ?? []);
     setLoading(false);
   };
 

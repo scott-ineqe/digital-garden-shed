@@ -28,24 +28,35 @@ export function UploadPanel({ onUploaded }: { onUploaded: () => void }) {
     loadProjects();
   }, []);
 
-  const createProject = async () => {
-    if (!newName.trim()) return;
-    setCreating(true);
-    const { data, error } = await supabase
-      .from("projects")
-      .insert({ name: newName.trim(), description: newDesc.trim() || null })
-      .select()
-      .single();
-    setCreating(false);
-    if (error) {
-      toast.error(error.message);
-      return;
+  const handleFiles = async (files: FileList | null) => {
+    if (!files || files.length === 0) return;
+    setUploading(true);
+    let success = 0;
+    
+    for (const file of Array.from(files)) {
+      const ext = file.name.split(".").pop()?.toLowerCase() ?? "";
+      if (!ALLOWED_EXT.includes(ext)) {
+        toast.error(`${file.name}: unsupported file type`);
+        continue;
+      }
+      
+      // Create a temporary local URL for the file instead of uploading
+      const fakeUrl = URL.createObjectURL(file);
+      
+      console.log("Mock uploaded file:", {
+        name: file.name,
+        file_type: file.type || `application/${ext}`,
+        file_url: fakeUrl, // Use the local URL
+      });
+
+      success++;
     }
-    toast.success("Project created");
-    setNewName("");
-    setNewDesc("");
-    setSelectedProject(data.id);
-    await loadProjects();
+    
+    setUploading(false);
+    if (success) {
+      toast.success(`Mock Uploaded ${success} file${success > 1 ? "s" : ""} (check console)`);
+      onUploaded();
+    }
   };
 
   const handleFiles = async (files: FileList | null) => {

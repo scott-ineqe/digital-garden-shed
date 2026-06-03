@@ -76,6 +76,38 @@ export type Database = {
         }
         Relationships: []
       }
+      hex_codes: {
+        Row: {
+          id: string
+          project_id: string
+          name: string
+          hex: string
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          project_id: string
+          name: string
+          hex: string
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          project_id?: string
+          name?: string
+          hex?: string
+          created_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "hex_codes_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
     }
     Views: {
       [_ in never]: never
