@@ -52,38 +52,29 @@ export function UploadPanel({ onUploaded }: { onUploaded: () => void }) {
     if (!files || files.length === 0) return;
     setUploading(true);
     let success = 0;
+    
     for (const file of Array.from(files)) {
       const ext = file.name.split(".").pop()?.toLowerCase() ?? "";
       if (!ALLOWED_EXT.includes(ext)) {
         toast.error(`${file.name}: unsupported file type`);
         continue;
       }
-      const path = `${crypto.randomUUID()}.${ext}`;
-      const { error: upErr } = await supabase.storage.from("assets").upload(path, file, {
-        contentType: file.type || undefined,
-      });
-      if (upErr) {
-        toast.error(`${file.name}: ${upErr.message}`);
-        continue;
-      }
-      const { data: pub } = supabase.storage.from("assets").getPublicUrl(path);
-      const { error: dbErr } = await supabase.from("assets").insert({
+      
+      // Create a temporary local URL for the file instead of uploading
+      const fakeUrl = URL.createObjectURL(file);
+      
+      console.log("Mock uploaded file:", {
         name: file.name,
         file_type: file.type || `application/${ext}`,
-        file_url: pub.publicUrl,
-        storage_path: path,
-        size: file.size,
-        project_id: selectedProject || null,
+        file_url: fakeUrl, // Use the local URL
       });
-      if (dbErr) {
-        toast.error(`${file.name}: ${dbErr.message}`);
-        continue;
-      }
+
       success++;
     }
+    
     setUploading(false);
     if (success) {
-      toast.success(`Uploaded ${success} file${success > 1 ? "s" : ""}`);
+      toast.success(`Mock Uploaded ${success} file${success > 1 ? "s" : ""} (check console)`);
       onUploaded();
     }
   };
