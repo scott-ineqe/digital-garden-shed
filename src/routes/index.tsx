@@ -3,7 +3,9 @@ import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { AssetCard, type Asset } from "@/components/AssetCard";
 import { UploadPanel } from "@/components/UploadPanel";
-import { Sparkles, LayoutGrid, UploadCloud, Search, Folder, FileType, ArrowUpDown } from "lucide-react";
+import { HexColorPanel } from "@/components/HexColorPanel";
+import { HexColorView } from "@/components/HexColorView";
+import { Sparkles, LayoutGrid, UploadCloud, Search, Folder, FileType, ArrowUpDown, Palette } from "lucide-react";
 import { Toaster } from "@/components/ui/sonner";
 
 export const Route = createFileRoute("/")({
@@ -19,7 +21,7 @@ export const Route = createFileRoute("/")({
 type Project = { id: string; name: string; description: string | null };
 
 function Index() {
-  const [tab, setTab] = useState<"view" | "upload">("view");
+  const [tab, setTab] = useState<"view" | "upload" | "hex">("view");
   const [assets, setAssets] = useState<Asset[]>([]);
   const [projects, setProjects] = useState<Project[]>([]);
   const [search, setSearch] = useState("");
@@ -27,6 +29,7 @@ function Index() {
   const [typeFilter, setTypeFilter] = useState<string>("all");
   const [sortBy, setSortBy] = useState<"newest" | "oldest" | "az" | "za">("newest");
   const [loading, setLoading] = useState(true);
+  const [hexRefresh, setHexRefresh] = useState(0);
 
   const load = async () => {
     setLoading(true);
@@ -115,6 +118,15 @@ function Index() {
             <UploadCloud className="w-4 h-4" />
             Upload & projects
           </button>
+          <button
+            onClick={() => setTab("hex")}
+            className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-medium transition ${
+              tab === "hex" ? "bg-aurora text-primary-foreground shadow-[var(--shadow-glow)]" : "text-muted-foreground hover:text-foreground"
+            }`}
+          >
+            <Palette className="w-4 h-4" />
+            Hex colors
+          </button>
         </div>
       </div>
 
@@ -199,8 +211,22 @@ function Index() {
               </div>
             )}
           </>
-        ) : (
+        ) : tab === "upload" ? (
           <UploadPanel onUploaded={load} />
+        ) : (
+          <div className="space-y-8">
+            {/* Add Hex Colors Section */}
+            <div>
+              <h2 className="text-xl font-semibold mb-4">Add hex colors</h2>
+              <HexColorPanel onAdded={() => setHexRefresh(prev => prev + 1)} />
+            </div>
+
+            {/* View Projects & Colors Section */}
+            <div>
+              <h2 className="text-xl font-semibold mb-4">Projects & colors</h2>
+              <HexColorView key={hexRefresh} />
+            </div>
+          </div>
         )}
       </main>
 
