@@ -5,7 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 
 type Project = { id: string; name: string; description: string | null };
 
-export function HexColorPanel({ onAdded }: { onAdded: () => void }) {
+export function HexColorPanel({ onAdded, refreshKey = 0 }: { onAdded: () => void; refreshKey?: number }) {
   const [projects, setProjects] = useState<Project[]>([]);
   const [selectedProject, setSelectedProject] = useState<string>("");
   const [newName, setNewName] = useState("");
@@ -29,7 +29,7 @@ export function HexColorPanel({ onAdded }: { onAdded: () => void }) {
 
   useEffect(() => {
     loadProjects();
-  }, []);
+  }, [refreshKey]);
 
   const createProject = async () => {
     if (!newName.trim()) return;

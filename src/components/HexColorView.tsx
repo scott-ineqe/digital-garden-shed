@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Copy, Folder, Trash2, ChevronDown, ChevronUp } from "lucide-react";
+import { Copy, Folder, Trash2, ChevronDown, ChevronUp, Pencil, Check, X } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -21,10 +21,15 @@ type ProjectWithColors = Project & {
   colors: HexColor[];
 };
 
-export function HexColorView() {
+export function HexColorView({ onProjectsChanged }: { onProjectsChanged?: () => void }) {
   const [projectsWithColors, setProjectsWithColors] = useState<ProjectWithColors[]>([]);
   const [loading, setLoading] = useState(true);
   const [expandedProject, setExpandedProject] = useState<string | null>(null);
+  const [editingProject, setEditingProject] = useState<string | null>(null);
+  const [editName, setEditName] = useState("");
+  const [editDesc, setEditDesc] = useState("");
+  const [saving, setSaving] = useState(false);
+  const [deleting, setDeleting] = useState<string | null>(null);
 
   const loadData = async () => {
     setLoading(true);
@@ -67,6 +72,60 @@ export function HexColorView() {
     loadData();
   };
 
+  const startEdit = (project: Project) => {
+    setEditingProject(project.id);
+    setEditName(project.name);
+    setEditDesc(project.description || "");
+  };
+
+  const cancelEdit = () => {
+    setEditingProject(null);
+    setEditName("");
+    setEditDesc("");
+  };
+
+  const saveProject = async (projectId: string) => {
+    if (!editName.trim()) {
+      toast.error("Project name is required");
+      return;
+    }
+    setSaving(true);
+    const { error } = await supabase
+      .from("projects")
+      .update({ name: editName.trim(), description: editDesc.trim() || null })
+      .eq("id", projectId);
+    setSaving(false);
+    if (error) {
+      toast.error("Failed to update project");
+      return;
+    }
+    toast.success("Project updated");
+    setEditingProject(null);
+    await loadData();
+    onProjectsChanged?.();
+  };
+
+  const deleteProject = async (projectId: string) => {
+    if (!window.confirm("Delete this project and all its colors? This cannot be undone.")) return;
+    setDeleting(projectId);
+    const { error: colorErr } = await supabase.from("hex_colors").delete().eq("project_id", projectId);
+    if (colorErr) {
+      toast.error("Failed to delete project colors");
+      setDeleting(null);
+      return;
+    }
+    const { error: projErr } = await supabase.from("projects").delete().eq("id", projectId);
+    setDeleting(null);
+    if (projErr) {
+      toast.error("Failed to delete project");
+      return;
+    }
+    toast.success("Project deleted");
+    setExpandedProject((prev) => (prev === projectId ? null : prev));
+    await loadData();
+    onProjectsChanged?.();
+  };
+
   return (
     <div className="space-y-4">
       {loading ? (
@@ -84,31 +143,100 @@ export function HexColorView() {
         </div>
       ) : (
         projectsWithColors.map((project) => (
-          <div key={project.id} className="glass rounded-2xl overflow-hidden">
-            <button
-              onClick={() =>
-                setExpandedProject(expandedProject === project.id ? null : project.id)
-              }
-              className="w-full flex items-center justify-between p-6 hover:bg-white/5 transition"
-            >
-              <div className="flex items-center gap-3 text-left">
+          <div key={project.id} className="glass rounded-2xl overflow-hidden group">
+            <div className="flex items-center justify-between p-6 hover:bg-white/5 transition">
+              <button
+                onClick={() =>
+                  setExpandedProject(expandedProject === project.id ? null : project.id)
+                }
+                className="flex-1 flex items-center gap-3 text-left"
+              >
                 <Folder className="w-5 h-5 text-accent flex-shrink-0" />
-                <div>
-                  <h3 className="font-semibold">{project.name}</h3>
-                  {project.description && (
-                    <p className="text-sm text-muted-foreground">{project.description}</p>
+                <div className="min-w-0">
+                  {editingProject === project.id ? (
+                    <div className="space-y-2">
+                      <input
+                        value={editName}
+                        onChange={(e) => setEditName(e.target.value)}
+                        onClick={(e) => e.stopPropagation()}
+                        placeholder="Project name..."
+                        className="w-full glass rounded-lg px-3 py-1.5 text-sm outline-none focus:ring-2 focus:ring-ring"
+                        autoFocus
+                      />
+                      <input
+                        value={editDesc}
+                        onChange={(e) => setEditDesc(e.target.value)}
+                        onClick={(e) => e.stopPropagation()}
+                        placeholder="Description (optional)..."
+                        className="w-full glass rounded-lg px-3 py-1.5 text-sm outline-none focus:ring-2 focus:ring-ring"
+                      />
+                    </div>
+                  ) : (
+                    <>
+                      <h3 className="font-semibold">{project.name}</h3>
+                      {project.description && (
+                        <p className="text-sm text-muted-foreground">{project.description}</p>
+                      )}
+                      <p className="text-xs text-muted-foreground mt-1">
+                        {project.colors.length} color{project.colors.length !== 1 ? "s" : ""}
+                      </p>
+                    </>
                   )}
-                  <p className="text-xs text-muted-foreground mt-1">
-                    {project.colors.length} color{project.colors.length !== 1 ? "s" : ""}
-                  </p>
                 </div>
+              </button>
+
+              <div className="flex items-center gap-1 ml-3">
+                {editingProject === project.id ? (
+                  <>
+                    <button
+                      onClick={() => saveProject(project.id)}
+                      disabled={saving}
+                      className="p-2 hover:bg-green-500/20 text-muted-foreground hover:text-green-400 rounded-lg transition"
+                      title="Save"
+                    >
+                      <Check className="w-4 h-4" />
+                    </button>
+                    <button
+                      onClick={cancelEdit}
+                      className="p-2 hover:bg-white/10 text-muted-foreground hover:text-foreground rounded-lg transition"
+                      title="Cancel"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <button
+                      onClick={() => startEdit(project)}
+                      className="p-2 hover:bg-white/10 text-muted-foreground hover:text-foreground rounded-lg transition opacity-0 group-hover:opacity-100"
+                      title="Edit project"
+                    >
+                      <Pencil className="w-4 h-4" />
+                    </button>
+                    <button
+                      onClick={() => deleteProject(project.id)}
+                      disabled={deleting === project.id}
+                      className="p-2 hover:bg-red-500/20 text-muted-foreground hover:text-red-400 rounded-lg transition opacity-0 group-hover:opacity-100"
+                      title="Delete project"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </>
+                )}
+                <button
+                  onClick={() =>
+                    setExpandedProject(expandedProject === project.id ? null : project.id)
+                  }
+                  className="p-2 hover:bg-white/10 rounded-lg transition"
+                >
+                  {expandedProject === project.id ? (
+                    <ChevronUp className="w-5 h-5 text-muted-foreground" />
+                  ) : (
+                    <ChevronDown className="w-5 h-5 text-muted-foreground" />
+                  )}
+                </button>
               </div>
-              {expandedProject === project.id ? (
-                <ChevronUp className="w-5 h-5 text-muted-foreground" />
-              ) : (
-                <ChevronDown className="w-5 h-5 text-muted-foreground" />
-              )}
-            </button>
+            </div>
 
             {expandedProject === project.id && project.colors.length > 0 && (
               <div className="border-t border-white/10">
