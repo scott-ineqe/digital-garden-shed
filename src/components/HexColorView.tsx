@@ -241,28 +241,28 @@ export function HexColorView({ onProjectsChanged }: { onProjectsChanged?: () => 
 
             {expandedProject === project.id && project.colors.length > 0 && (
               <div className="border-t border-white/10">
-                <div className="p-6 space-y-3">
+                <div className="p-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                   {project.colors.map((color) => (
                     <div
                       key={color.id}
-                      className="flex items-center justify-between bg-white/5 rounded-lg p-4 hover:bg-white/10 transition group"
+                      className="bg-white/5 rounded-lg p-4 hover:bg-white/10 transition flex flex-col group"
                     >
-                      <div className="flex items-center gap-4 flex-1">
+                      <div className="flex items-start gap-4 mb-4">
                         <div
-                          className="w-12 h-12 rounded-lg border border-white/20 shadow-md flex-shrink-0"
+                          className="w-16 h-16 rounded-lg border border-white/20 shadow-md flex-shrink-0"
                           style={{ backgroundColor: color.hex_code }}
                         />
-                        <div>
-                          <p className="font-medium">{color.name}</p>
-                          <p className="text-sm text-muted-foreground font-mono">
+                        <div className="min-w-0 flex-1">
+                          <p className="font-medium truncate">{color.name}</p>
+                          <p className="text-sm text-muted-foreground font-mono mt-1">
                             {color.hex_code.toUpperCase()}
                           </p>
                         </div>
                       </div>
-                      <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition">
+                      <div className="flex items-center gap-2 mt-auto">
                         <button
                           onClick={() => copyToClipboard(color.hex_code, color.name)}
-                          className="flex items-center gap-2 px-3 py-2 bg-accent hover:bg-accent/90 text-accent-foreground rounded-lg text-sm font-medium transition"
+                          className="flex-1 flex items-center justify-center gap-2 px-3 py-2 bg-accent hover:bg-accent/90 text-accent-foreground rounded-lg text-sm font-medium transition"
                         >
                           <Copy className="w-4 h-4" />
                           Copy
