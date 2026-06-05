@@ -89,7 +89,7 @@ function Index() {
           <span>A 🌭 Production</span>
         </div>
         <h1 className="text-4xl md:text-5xl font-semibold tracking-tight">
-          The <span className="text-gradient">Creative library</span>,
+          The <span className="text-gradient">Creative Library</span>,
           <br className="hidden md:block" /> Beautifully Organized.
         </h1>
         <p className="mt-3 text-muted-foreground max-w-xl">
