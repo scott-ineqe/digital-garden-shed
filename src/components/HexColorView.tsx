@@ -287,8 +287,9 @@ export function HexColorView({ onProjectsChanged }: { onProjectsChanged?: () => 
                 </p>
               </div>
             )}
-        </div></div>
-        ))
+          </div>
+        ))}
+        </div>
       )}
     </div>
   );
