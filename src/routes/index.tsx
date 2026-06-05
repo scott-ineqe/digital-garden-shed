@@ -85,15 +85,14 @@ function Index() {
       {/* Hero */}
       <header className="max-w-6xl mx-auto px-6 pt-12 pb-6">
         <div className="flex items-center gap-2 text-xs text-muted-foreground mb-3">
-          <Sparkles className="w-3.5 h-3.5 text-primary" />
-          <span>Liquid asset vault</span>
+          <span>A 🌭 Production</span>
         </div>
         <h1 className="text-4xl md:text-5xl font-semibold tracking-tight">
-          Your <span className="text-gradient">creative library</span>,
-          <br className="hidden md:block" /> beautifully organized.
+          The <span className="text-gradient">Creative library</span>,
+          <br className="hidden md:block" /> Beautifully Organized.
         </h1>
         <p className="mt-3 text-muted-foreground max-w-xl">
-          Browse and download assets, or upload new files into projects — SVG, PNG, JPG, MP3, MOV.
+          Browse and download assets, or switch to the 'upload & projects' tab to add your own. You can also browse and add hex colours into each project.
         </p>
       </header>
 
