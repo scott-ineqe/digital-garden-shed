@@ -219,13 +219,13 @@ function Index() {
             {/* Add Hex Colors Section */}
             <div>
               <h2 className="text-xl font-semibold mb-4">Add hex colors</h2>
-              <HexColorPanel onAdded={() => setHexRefresh(prev => prev + 1)} />
+              <HexColorPanel onAdded={() => setHexRefresh(prev => prev + 1)} refreshKey={projectRefresh} />
             </div>
 
             {/* View Projects & Colors Section */}
             <div>
               <h2 className="text-xl font-semibold mb-4">Projects & colors</h2>
-              <HexColorView key={hexRefresh} />
+              <HexColorView key={hexRefresh} onProjectsChanged={() => { load(); setProjectRefresh(prev => prev + 1); }} />
             </div>
           </div>
         )}
