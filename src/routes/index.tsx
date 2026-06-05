@@ -30,6 +30,7 @@ function Index() {
   const [sortBy, setSortBy] = useState<"newest" | "oldest" | "az" | "za">("newest");
   const [loading, setLoading] = useState(true);
   const [hexRefresh, setHexRefresh] = useState(0);
+  const [projectRefresh, setProjectRefresh] = useState(0);
 
   const load = async () => {
     setLoading(true);
