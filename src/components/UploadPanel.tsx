@@ -60,21 +60,59 @@ export function UploadPanel({ onUploaded }: { onUploaded: () => void }) {
         continue;
       }
       
-      // Create a temporary local URL for the file instead of uploading
-      const fakeUrl = URL.createObjectURL(file);
-      
-      console.log("Mock uploaded file:", {
-        name: file.name,
-        file_type: file.type || `application/${ext}`,
-        file_url: fakeUrl, // Use the local URL
-      });
+      try {
+        // Upload file to Supabase storage
+        const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}-${file.name}`;
+        const { data: uploadData, error: uploadError } = await supabase.storage
+          .from("assets")
+          .upload(fileName, file, {
+            cacheControl: "3600",
+            upsert: false,
+          });
 
-      success++;
+        if (uploadError) {
+          toast.error(`Failed to upload ${file.name}: ${uploadError.message}`);
+          continue;
+        }
+
+        // Get public URL
+        const { data: publicUrlData } = supabase.storage
+          .from("assets")
+          .getPublicUrl(uploadData.path);
+
+        const file_url = publicUrlData.publicUrl;
+
+        // Save asset record to database
+        const { data: asset, error: dbError } = await supabase
+          .from("assets")
+          .insert({
+            name: file.name,
+            file_type: file.type || `application/${ext}`,
+            file_url: file_url,
+            storage_path: uploadData.path,
+            size: file.size,
+            project_id: selectedProject || null,
+          })
+          .select()
+          .single();
+
+        if (dbError) {
+          toast.error(`Failed to save asset: ${dbError.message}`);
+          // Clean up the uploaded file
+          await supabase.storage.from("assets").remove([uploadData.path]);
+          continue;
+        }
+
+        success++;
+      } catch (err) {
+        toast.error(`Error uploading ${file.name}`);
+        console.error(err);
+      }
     }
     
     setUploading(false);
     if (success) {
-      toast.success(`Mock Uploaded ${success} file${success > 1 ? "s" : ""} (check console)`);
+      toast.success(`Uploaded ${success} file${success > 1 ? "s" : ""}`);
       onUploaded();
     }
   };
