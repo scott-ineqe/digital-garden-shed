@@ -127,11 +127,11 @@ export function HexColorView({ onProjectsChanged }: { onProjectsChanged?: () => 
   };
 
   return (
-    <div className="space-y-4">
+    <div>
       {loading ? (
-        <div className="space-y-3">
-          {Array.from({ length: 3 }).map((_, i) => (
-            <div key={i} className="glass rounded-2xl h-20 animate-pulse" />
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <div key={i} className="glass rounded-2xl h-48 animate-pulse" />
           ))}
         </div>
       ) : projectsWithColors.length === 0 ? (
@@ -142,7 +142,8 @@ export function HexColorView({ onProjectsChanged }: { onProjectsChanged?: () => 
           </p>
         </div>
       ) : (
-        projectsWithColors.map((project) => (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+          {projectsWithColors.map((project) => (
           <div key={project.id} className="glass rounded-2xl overflow-hidden group">
             <div className="flex items-center justify-between p-6 hover:bg-white/5 transition">
               <button
@@ -286,7 +287,7 @@ export function HexColorView({ onProjectsChanged }: { onProjectsChanged?: () => 
                 </p>
               </div>
             )}
-          </div>
+        </div></div>
         ))
       )}
     </div>
