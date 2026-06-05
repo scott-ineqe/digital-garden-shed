@@ -143,7 +143,7 @@ export function HexColorView({ onProjectsChanged }: { onProjectsChanged?: () => 
         </div>
       ) : (
         projectsWithColors.map((project) => (
-          <div key={project.id} className="glass rounded-2xl overflow-hidden">
+          <div key={project.id} className="glass rounded-2xl overflow-hidden group">
             <div className="flex items-center justify-between p-6 hover:bg-white/5 transition">
               <button
                 onClick={() =>
