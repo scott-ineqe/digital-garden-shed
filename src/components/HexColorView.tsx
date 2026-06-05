@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Copy, Folder, Trash2, ChevronDown, ChevronUp } from "lucide-react";
+import { Copy, Folder, Trash2, ChevronDown, ChevronUp, Pencil, Check, X } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 
