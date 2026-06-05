@@ -78,7 +78,7 @@ export function HexColorPanel({ onAdded, refreshKey = 0 }: { onAdded: () => void
   };
 
   return (
-    <div className="space-y-6">
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
       {/* Create New Project */}
       <div className="glass rounded-2xl p-6">
         <div className="flex items-center gap-2 mb-4">
