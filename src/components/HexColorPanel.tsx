@@ -145,13 +145,14 @@ export function HexColorPanel({ onAdded }: { onAdded: () => void }) {
             className="w-full glass rounded-xl px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-ring"
           />
 
-          <div className="flex gap-3">
-            <div className="flex-1">
+          <div className="flex gap-3 items-center">
+            <div className="flex-shrink-0">
               <input
                 type="color"
                 value={hexCode}
                 onChange={(e) => setHexCode(e.target.value)}
-                className="w-full h-12 glass rounded-xl cursor-pointer"
+                className="w-12 h-12 rounded-full cursor-pointer border-0 p-0"
+                style={{ background: 'none' }}
               />
             </div>
             <input
