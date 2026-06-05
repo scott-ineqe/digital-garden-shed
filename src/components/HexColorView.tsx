@@ -129,7 +129,7 @@ export function HexColorView({ onProjectsChanged }: { onProjectsChanged?: () => 
   return (
     <div>
       {loading ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {Array.from({ length: 4 }).map((_, i) => (
             <div key={i} className="glass rounded-2xl h-48 animate-pulse" />
           ))}
@@ -142,7 +142,7 @@ export function HexColorView({ onProjectsChanged }: { onProjectsChanged?: () => 
           </p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {projectsWithColors.map((project) => (
           <div key={project.id} className="glass rounded-2xl overflow-hidden group">
             <div className="flex items-center justify-between p-6 hover:bg-white/5 transition">
