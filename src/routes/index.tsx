@@ -30,6 +30,7 @@ function Index() {
   const [sortBy, setSortBy] = useState<"newest" | "oldest" | "az" | "za">("newest");
   const [loading, setLoading] = useState(true);
   const [hexRefresh, setHexRefresh] = useState(0);
+  const [projectRefresh, setProjectRefresh] = useState(0);
 
   const load = async () => {
     setLoading(true);
@@ -217,13 +218,13 @@ function Index() {
             {/* Add Hex Colors Section */}
             <div>
               <h2 className="text-xl font-semibold mb-4">Add hex colors</h2>
-              <HexColorPanel onAdded={() => setHexRefresh(prev => prev + 1)} />
+              <HexColorPanel onAdded={() => setHexRefresh(prev => prev + 1)} refreshKey={projectRefresh} />
             </div>
 
             {/* View Projects & Colors Section */}
             <div>
               <h2 className="text-xl font-semibold mb-4">Projects & colors</h2>
-              <HexColorView key={hexRefresh} />
+              <HexColorView key={hexRefresh} onProjectsChanged={() => { load(); setProjectRefresh(prev => prev + 1); }} />
             </div>
           </div>
         )}

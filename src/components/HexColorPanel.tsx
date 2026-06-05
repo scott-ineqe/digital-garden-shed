@@ -1,12 +1,11 @@
 import { useEffect, useState } from "react";
 import { FolderPlus, Loader2, Folder, Plus } from "lucide-react";
 import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
 
 type Project = { id: string; name: string; description: string | null };
 
-const STORAGE_KEY = "hexColorData";
-
-export function HexColorPanel({ onAdded }: { onAdded: () => void }) {
+export function HexColorPanel({ onAdded, refreshKey = 0 }: { onAdded: () => void; refreshKey?: number }) {
   const [projects, setProjects] = useState<Project[]>([]);
   const [selectedProject, setSelectedProject] = useState<string>("");
   const [newName, setNewName] = useState("");
@@ -16,40 +15,43 @@ export function HexColorPanel({ onAdded }: { onAdded: () => void }) {
   const [creating, setCreating] = useState(false);
   const [adding, setAdding] = useState(false);
 
-  const loadProjects = () => {
-    const data = localStorage.getItem(STORAGE_KEY);
-    const stored = data ? JSON.parse(data) : { projects: [] };
-    setProjects(stored.projects || []);
+  const loadProjects = async () => {
+    const { data, error } = await supabase
+      .from("projects")
+      .select("id, name, description")
+      .order("created_at", { ascending: false });
+    if (error) {
+      toast.error("Failed to load projects");
+      return;
+    }
+    setProjects(data || []);
   };
 
   useEffect(() => {
     loadProjects();
-  }, []);
+  }, [refreshKey]);
 
-  const createProject = () => {
+  const createProject = async () => {
     if (!newName.trim()) return;
     setCreating(true);
-
-    const newProject: Project = {
-      id: crypto.randomUUID(),
-      name: newName.trim(),
-      description: newDesc.trim() || null,
-    };
-
-    const data = localStorage.getItem(STORAGE_KEY);
-    const stored = data ? JSON.parse(data) : { projects: [], hex_colors: [] };
-    stored.projects.push(newProject);
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(stored));
-
+    const { data, error } = await supabase
+      .from("projects")
+      .insert({ name: newName.trim(), description: newDesc.trim() || null })
+      .select()
+      .single();
     setCreating(false);
+    if (error || !data) {
+      toast.error("Failed to create project");
+      return;
+    }
     toast.success("Project created");
     setNewName("");
     setNewDesc("");
-    setSelectedProject(newProject.id);
-    loadProjects();
+    setSelectedProject(data.id);
+    await loadProjects();
   };
 
-  const addHexColor = () => {
+  const addHexColor = async () => {
     if (!colorName.trim()) {
       toast.error("Please enter a color name");
       return;
@@ -58,22 +60,17 @@ export function HexColorPanel({ onAdded }: { onAdded: () => void }) {
       toast.error("Please select or create a project");
       return;
     }
-
     setAdding(true);
-
-    const data = localStorage.getItem(STORAGE_KEY);
-    const stored = data ? JSON.parse(data) : { projects: [], hex_colors: [] };
-
-    stored.hex_colors.push({
-      id: crypto.randomUUID(),
+    const { error } = await supabase.from("hex_colors").insert({
       name: colorName.trim(),
       hex_code: hexCode,
       project_id: selectedProject,
-      created_at: new Date().toISOString(),
     });
-
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(stored));
     setAdding(false);
+    if (error) {
+      toast.error("Failed to add color");
+      return;
+    }
     toast.success("Color added!");
     setColorName("");
     setHexCode("#000000");
@@ -148,13 +145,14 @@ export function HexColorPanel({ onAdded }: { onAdded: () => void }) {
             className="w-full glass rounded-xl px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-ring"
           />
 
-          <div className="flex gap-3">
-            <div className="flex-1">
+          <div className="flex gap-3 items-center">
+            <div className="flex-shrink-0">
               <input
                 type="color"
                 value={hexCode}
                 onChange={(e) => setHexCode(e.target.value)}
-                className="w-full h-12 glass rounded-xl cursor-pointer"
+                className="w-12 h-12 rounded-full cursor-pointer border-0 p-0"
+                style={{ background: 'none' }}
               />
             </div>
             <input
