@@ -1,12 +1,14 @@
 import { useEffect, useState } from "react";
 import { Copy, Folder, Trash2, ChevronDown, ChevronUp } from "lucide-react";
 import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
 
 type HexColor = {
   id: string;
   name: string;
   hex_code: string;
   created_at: string;
+  project_id: string | null;
 };
 
 type Project = {
@@ -19,30 +21,30 @@ type ProjectWithColors = Project & {
   colors: HexColor[];
 };
 
-const STORAGE_KEY = "hexColorData";
-
 export function HexColorView() {
   const [projectsWithColors, setProjectsWithColors] = useState<ProjectWithColors[]>([]);
   const [loading, setLoading] = useState(true);
   const [expandedProject, setExpandedProject] = useState<string | null>(null);
 
-  const loadData = () => {
+  const loadData = async () => {
     setLoading(true);
-    const data = localStorage.getItem(STORAGE_KEY);
-    const stored = data ? JSON.parse(data) : { projects: [], hex_colors: [] };
+    const [{ data: projects, error: pErr }, { data: colors, error: cErr }] = await Promise.all([
+      supabase.from("projects").select("id, name, description").order("created_at", { ascending: false }),
+      supabase.from("hex_colors").select("id, name, hex_code, created_at, project_id").order("created_at", { ascending: false }),
+    ]);
 
-    const projectsData = (stored.projects || []).map((project: Project) => {
-      const colors = (stored.hex_colors || [])
-        .filter((c: HexColor) => c.project_id === project.id)
-        .sort((a: HexColor, b: HexColor) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+    if (pErr || cErr) {
+      toast.error("Failed to load colors");
+      setLoading(false);
+      return;
+    }
 
-      return {
-        ...project,
-        colors,
-      };
-    });
+    const data = (projects || []).map((project) => ({
+      ...project,
+      colors: (colors || []).filter((c) => c.project_id === project.id),
+    }));
 
-    setProjectsWithColors(projectsData);
+    setProjectsWithColors(data);
     setLoading(false);
   };
 
@@ -55,13 +57,12 @@ export function HexColorView() {
     toast.success(`Copied ${name} (${hex})`);
   };
 
-  const deleteColor = (colorId: string) => {
-    const data = localStorage.getItem(STORAGE_KEY);
-    const stored = data ? JSON.parse(data) : { projects: [], hex_colors: [] };
-    
-    stored.hex_colors = (stored.hex_colors || []).filter((c: HexColor) => c.id !== colorId);
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(stored));
-    
+  const deleteColor = async (colorId: string) => {
+    const { error } = await supabase.from("hex_colors").delete().eq("id", colorId);
+    if (error) {
+      toast.error("Failed to delete color");
+      return;
+    }
     toast.success("Color deleted");
     loadData();
   };
