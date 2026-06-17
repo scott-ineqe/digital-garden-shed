@@ -39,12 +39,12 @@ export function rateContrast(ratio: number): WcagRating {
 export function ratingColor(rating: WcagRating): string {
   switch (rating) {
     case "AAA":
-      return "bg-green-500/20 text-green-300 border-green-500/30";
+      return "bg-green-600 text-white border-green-700";
     case "AA":
-      return "bg-emerald-500/20 text-emerald-300 border-emerald-500/30";
+      return "bg-emerald-600 text-white border-emerald-700";
     case "AA Large":
-      return "bg-yellow-500/20 text-yellow-300 border-yellow-500/30";
+      return "bg-amber-500 text-amber-950 border-amber-600";
     case "Fail":
-      return "bg-red-500/20 text-red-300 border-red-500/30";
+      return "bg-red-600 text-white border-red-700";
   }
 }
