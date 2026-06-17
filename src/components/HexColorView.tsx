@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Copy, Folder, Trash2, ChevronDown, ChevronUp, Pencil, Check, X, GripVertical } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
+import { ContrastBadges } from "@/components/ContrastBadges";
 import {
   DndContext,
   closestCenter,
@@ -207,7 +208,7 @@ function SortableProjectCard({
                 key={color.id}
                 className="bg-white/5 rounded-lg p-4 hover:bg-white/10 transition flex flex-col group"
               >
-                <div className="flex items-start gap-4 mb-4">
+                <div className="flex items-start gap-4 mb-3">
                   <div
                     className="w-16 h-16 rounded-lg border border-white/20 shadow-md flex-shrink-0"
                     style={{ backgroundColor: color.hex_code }}
@@ -218,6 +219,9 @@ function SortableProjectCard({
                       {color.hex_code.toUpperCase()}
                     </p>
                   </div>
+                </div>
+                <div className="mb-3">
+                  <ContrastBadges hex={color.hex_code} />
                 </div>
                 <div className="flex items-center gap-2 mt-auto">
                   <button

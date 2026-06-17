@@ -5,6 +5,7 @@ import { AssetCard, type Asset } from "@/components/AssetCard";
 import { UploadPanel } from "@/components/UploadPanel";
 import { HexColorPanel } from "@/components/HexColorPanel";
 import { HexColorView } from "@/components/HexColorView";
+import { ContrastChecker } from "@/components/ContrastChecker";
 import { Sparkles, LayoutGrid, UploadCloud, Search, Folder, FileType, ArrowUpDown, Palette } from "lucide-react";
 import { Toaster } from "@/components/ui/sonner";
 
@@ -219,6 +220,12 @@ function Index() {
             <div>
               <h2 className="text-xl font-semibold mb-4">Add hex colors</h2>
               <HexColorPanel onAdded={() => setHexRefresh(prev => prev + 1)} refreshKey={projectRefresh} />
+            </div>
+
+            {/* Contrast Checker Section */}
+            <div>
+              <h2 className="text-xl font-semibold mb-4">Accessibility checker</h2>
+              <ContrastChecker />
             </div>
 
             {/* View Projects & Colors Section */}
