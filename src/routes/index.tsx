@@ -87,7 +87,7 @@ function Index() {
       {/* Hero */}
       <header className="max-w-6xl mx-auto px-6 pt-12 pb-6">
         <div className="flex items-center gap-2 text-xs text-muted-foreground mb-3">
-          <span>A 🌭 Production</span>
+          <span>🌭 Created by Scott Hogsett</span>
         </div>
         <h1 className="text-4xl md:text-5xl font-semibold tracking-tight">
           Asset Library
