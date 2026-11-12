@@ -90,7 +90,7 @@ function Index() {
           <span>🌭 Created by Scott Hogsett</span>
         </div>
         <h1 className="text-4xl md:text-5xl font-semibold tracking-tight">
-          Asset Library
+          CVD Asset Library
         </h1>
         <p className="mt-3 text-muted-foreground max-w-xl">
           Browse and download assets, or switch to the 'upload & projects' tab to add your own. You can also browse and add hex colours into each project.
